@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
 import { supabase } from "./supabase";
-import { Badge, Skeleton, Button, Input } from "./components/UI";
+import { Skeleton, Button, Input } from "./components/UI";
 import { Search, Plus, ShoppingBag, AtSign, AlertCircle, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useToast } from "./hooks/useToast";
 
 export default function OrdersPage() {
+    const { showToast } = useToast();
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState("");
@@ -25,11 +27,6 @@ export default function OrdersPage() {
         delivery_status: "pending",
         order_date: new Date().toISOString().split("T")[0]
     });
-
-    useEffect(() => {
-        fetchOrders();
-        fetchProducts();
-    }, []);
 
     const fetchOrders = async () => {
         try {
@@ -59,42 +56,52 @@ export default function OrdersPage() {
     };
 
     const fetchProducts = async () => {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+
         const { data, error } = await supabase
             .from("products")
-            .select("*");
+            .select("*")
+            .eq("user_id", user.id)
+            .order("name", { ascending: true });
 
         if (error) {
-            console.log("Products error:", error);
+            console.error("Products error:", error);
             return;
         }
 
         setProducts(data || []);
     };
 
+    useEffect(() => {
+        fetchOrders();
+        fetchProducts();
+    }, []);
+
     const createOrder = async (e) => {
         e.preventDefault();
         const quantity = Number(newOrder.quantity);
         const price = Number(newOrder.price);
 
-        if (!newOrder.customer_name || !price || !quantity) {
-            alert("Please fill in all required fields and enter valid quantity/price.");
+        if (!newOrder.customer_name || !price || !quantity || !selectedProductId) {
+            showToast("Fill in customer, product, quantity, and price.", "error");
             return;
         }
 
         if (quantity < 1) {
-            alert("Quantity must be at least 1.");
+            showToast("Quantity must be at least 1.", "error");
             return;
         }
 
         try {
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) {
-                alert("Please log in to create orders.");
+                showToast("Please log in to create orders.", "error");
                 return;
             }
 
             // Create order and update stock atomically
-            const { data, error } = await supabase.rpc(
+            const { error } = await supabase.rpc(
                 "create_order_atomic",
                 {
                     p_product_id: selectedProductId,
@@ -111,7 +118,9 @@ export default function OrdersPage() {
             if (error) throw error;
 
             await fetchOrders();
+            await fetchProducts();
             setShowForm(false);
+            showToast("Order created successfully.", "success");
             setNewOrder({
                 customer_name: "",
                 ig_username: "",
@@ -125,7 +134,7 @@ export default function OrdersPage() {
             setSelectedProductId("");
         } catch (err) {
             console.error(err);
-            alert(err.message || "Failed to complete order. Check stock and try again.");
+            showToast(err.message || "Failed to complete order. Check stock and try again.", "error");
         }
     };
 
@@ -133,7 +142,7 @@ export default function OrdersPage() {
         try {
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) {
-                alert("Please log in to update orders");
+                showToast("Please log in to update orders", "error");
                 return;
             }
 
@@ -146,8 +155,9 @@ export default function OrdersPage() {
             if (error) throw error;
 
             setOrders(prev => prev.map(o => o.id === id ? { ...o, [field]: value } : o));
+            showToast("Order updated.", "success");
         } catch (err) {
-            alert(err.message);
+            showToast(err.message, "error");
         }
     };
 

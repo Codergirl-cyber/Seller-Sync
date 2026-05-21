@@ -15,16 +15,3 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   },
 });
 
-// Basic connection test
-supabase.from('test_table').select('id').limit(1).then(({ error }) => {
-  if (error) {
-    console.warn('Supabase Connection Warning:', error.message);
-    if (error.message.includes('RLS')) {
-      console.error('ACTION REQUIRED: Enable RLS policies for public access in your Supabase dashboard.');
-    }
-  } else {
-    console.log('Supabase connected successfully.');
-  }
-});
-
-

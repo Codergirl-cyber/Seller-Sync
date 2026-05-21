@@ -2,34 +2,44 @@ import { useState, useEffect } from "react";
 import { supabase } from "./supabase";
 import { Skeleton } from "./components/UI";
 import { ArrowUpRight, ArrowDownLeft, Search, CheckCircle, XCircle, Clock } from "lucide-react";
+import { useToast } from "./hooks/useToast";
 
 export default function TransactionsPage() {
+    const { showToast } = useToast();
     const [transactions, setTransactions] = useState([]);
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState("");
     const [statusFilter, setStatusFilter] = useState("all"); // all, success, failed, pending
     const [updating, setUpdating] = useState(null); // Track which transaction is being updated
 
-    useEffect(() => {
-        fetchTransactions();
-    }, []);
-
     const fetchTransactions = async () => {
         try {
             setLoading(true);
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) {
+                setTransactions([]);
+                return;
+            }
+
             const { data, error } = await supabase
                 .from("transactions")
                 .select("*")
+                .eq("user_id", user.id)
                 .order("created_at", { ascending: false });
 
             if (error) throw error;
             setTransactions(data || []);
-        } catch (err) {
+        } catch {
             setTransactions([]);
+            showToast("Could not load transactions.", "error");
         } finally {
             setLoading(false);
         }
     };
+
+    useEffect(() => {
+        fetchTransactions();
+    }, []);
 
     const updateTransactionStatus = async (txnId, newStatus) => {
         try {
@@ -37,8 +47,7 @@ export default function TransactionsPage() {
             const { data: { user } } = await supabase.auth.getUser();
             
             if (!user) {
-                console.error("No user logged in");
-                alert("Please log in to update transactions");
+                showToast("Please log in to update transactions", "error");
                 return;
             }
 
@@ -46,6 +55,7 @@ export default function TransactionsPage() {
                 .from("transactions")
                 .update({ status: newStatus, updated_at: new Date().toISOString() })
                 .eq("id", txnId)
+                .eq("user_id", user.id)
                 .select();
 
             if (error) {
@@ -53,18 +63,14 @@ export default function TransactionsPage() {
                 throw new Error(error.message);
             }
             
-            console.log("Transaction updated successfully:", data);
-            
-            // Update local state immediately
             setTransactions(prev => prev.map(t => 
                 t.id === txnId ? { ...t, status: newStatus } : t
             ));
-            
-            // Refresh all transactions to ensure sync
-            await fetchTransactions();
+            showToast("Transaction status updated.", "success");
+            if (!data?.length) await fetchTransactions();
         } catch (err) {
             console.error("Error updating transaction:", err.message || err);
-            alert(`Failed to update status: ${err.message || 'Check console for details'}`);
+            showToast(err.message || "Failed to update status.", "error");
         } finally {
             setUpdating(null);
         }
@@ -163,6 +169,15 @@ export default function TransactionsPage() {
                 ))}
             </div>
 
+            {!loading && filtered.length === 0 ? (
+                <div className="empty-state" style={{ marginTop: "24px" }}>
+                    <p className="body" style={{ color: "var(--text-secondary)" }}>
+                        {transactions.length === 0
+                            ? "Transactions appear when orders are processed through your store."
+                            : "No transactions match your search or filter."}
+                    </p>
+                </div>
+            ) : (
             <div className="table-shell">
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
                 <thead>
@@ -241,6 +256,7 @@ export default function TransactionsPage() {
                 </tbody>
             </table>
             </div>
+            )}
         </div>
     );
 }
