@@ -112,4 +112,4 @@ Dashboard
 Clone the repository:
 
 ```bash
-git clone YOUR_REPO_URL
+git clone https://github.com/Codergirl-cyber/Seller-Sync
