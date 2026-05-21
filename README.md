@@ -6,7 +6,7 @@ Built as a full-stack web application with authentication, inventory management,
 
 ## Live Demo
 
-🔗 Live: [Add Vercel link here]  
+🔗 Live: https://seller-sync-nine.vercel.app/ 
 🔗 GitHub: [Add repo link here]
 
 ---
