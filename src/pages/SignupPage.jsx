@@ -1,11 +1,15 @@
 import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Mail, Lock, User, AlertCircle, CheckCircle, Loader } from 'lucide-react';
+import { Mail, Lock, AlertCircle, CheckCircle, Loader } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
+import { useToast } from '../hooks/useToast';
 import '../styles/AuthPages.css';
 
-export default function SignupPage({ onSwitchToLogin }) {
-  const { signUp, signInWithGoogle, loading, error: authError } = useAuth();
+export default function SignupPage() {
+  const navigate = useNavigate();
+  const { signUp, signInWithGoogle, error: authError, clearError } = useAuth();
+  const { showToast } = useToast();
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -21,6 +25,8 @@ export default function SignupPage({ onSwitchToLogin }) {
       ...prev,
       [name]: value,
     }));
+    if (error) setError('');
+    clearError();
   };
 
   const validateForm = () => {
@@ -52,6 +58,7 @@ export default function SignupPage({ onSwitchToLogin }) {
     e.preventDefault();
     setError('');
     setSuccess('');
+    clearError();
 
     if (!validateForm()) {
       return;
@@ -59,20 +66,33 @@ export default function SignupPage({ onSwitchToLogin }) {
 
     try {
       setIsSubmitting(true);
-      await signUp(formData.email, formData.password);
-      setSuccess(
-        'Account created successfully! You can now sign in.'
-      );
-      setFormData({ email: '', password: '', confirmPassword: '' });
-      setTimeout(() => onSwitchToLogin(), 2000);
-    } catch (err) {
-      // Handle specific errors
-      if (err.message.includes('rate limited')) {
-        setError('Too many signup attempts. Please wait a few minutes and try again, or use a different email.');
-      } else if (err.message.includes('already exists')) {
-        setError('This email is already registered. Please sign in instead.');
+      const data = await signUp(formData.email, formData.password);
+
+      if (data.session) {
+        setSuccess('Account created! Taking you to your dashboard...');
+        showToast('Account created successfully!', 'success');
+        localStorage.setItem('userEmail', formData.email);
       } else {
-        setError(err.message || 'Signup failed. Please try again.');
+        setSuccess(
+          'Account created! Check your email to confirm, then login.'
+        );
+        showToast('Check your email to confirm your account.', 'info');
+        setFormData({ email: '', password: '', confirmPassword: '' });
+        setTimeout(() => navigate('/login'), 3000);
+      }
+    } catch (err) {
+      const msg = err.message || '';
+      if (msg.toLowerCase().includes('rate limit')) {
+        setError(
+          'Too many attempts. Please wait a few minutes or use a different email.'
+        );
+      } else if (
+        msg.toLowerCase().includes('already') ||
+        msg.toLowerCase().includes('registered')
+      ) {
+        setError('This email is already registered. Login instead.');
+      } else {
+        setError(msg || 'Could not create account. Please try again.');
       }
     } finally {
       setIsSubmitting(false);
@@ -82,11 +102,14 @@ export default function SignupPage({ onSwitchToLogin }) {
   const handleGoogleSignup = async () => {
     setError('');
     setSuccess('');
+    clearError();
     try {
       setIsSubmitting(true);
       await signInWithGoogle();
     } catch (err) {
-      setError(err.message || 'Google signup failed. Please try again.');
+      const message = err.message || 'Google sign-in failed. Please try again.';
+      setError(message);
+      showToast(message, 'error');
     } finally {
       setIsSubmitting(false);
     }
@@ -102,37 +125,35 @@ export default function SignupPage({ onSwitchToLogin }) {
       className="auth-container"
     >
       <div className="auth-box">
-        {/* Header */}
         <div className="auth-header">
           <h1>Create Account</h1>
-          <p>Join us and get started</p>
+          <p>Start managing your Instagram shop in one place</p>
         </div>
 
-        {/* Success Alert */}
         {success && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             className="success-alert"
+            role="status"
           >
             <CheckCircle size={18} />
             <span>{success}</span>
           </motion.div>
         )}
 
-        {/* Error Alert */}
         {displayError && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             className="error-alert"
+            role="alert"
           >
             <AlertCircle size={18} />
             <span>{displayError}</span>
           </motion.div>
         )}
 
-        {/* Email/Password Form */}
         <form onSubmit={handleEmailSignup} className="auth-form">
           <div className="form-group">
             <label htmlFor="email">Email Address</label>
@@ -145,7 +166,8 @@ export default function SignupPage({ onSwitchToLogin }) {
                 placeholder="you@example.com"
                 value={formData.email}
                 onChange={handleInputChange}
-                disabled={isSubmitting || loading}
+                disabled={isSubmitting}
+                autoComplete="email"
               />
             </div>
           </div>
@@ -161,7 +183,8 @@ export default function SignupPage({ onSwitchToLogin }) {
                 placeholder="••••••••"
                 value={formData.password}
                 onChange={handleInputChange}
-                disabled={isSubmitting || loading}
+                disabled={isSubmitting}
+                autoComplete="new-password"
               />
             </div>
             <small className="form-hint">At least 6 characters</small>
@@ -178,7 +201,8 @@ export default function SignupPage({ onSwitchToLogin }) {
                 placeholder="••••••••"
                 value={formData.confirmPassword}
                 onChange={handleInputChange}
-                disabled={isSubmitting || loading}
+                disabled={isSubmitting}
+                autoComplete="new-password"
               />
             </div>
           </div>
@@ -186,7 +210,7 @@ export default function SignupPage({ onSwitchToLogin }) {
           <button
             type="submit"
             className="auth-button primary"
-            disabled={isSubmitting || loading}
+            disabled={isSubmitting}
           >
             {isSubmitting ? (
               <>
@@ -194,21 +218,19 @@ export default function SignupPage({ onSwitchToLogin }) {
                 Creating account...
               </>
             ) : (
-              'Sign Up'
+              'Create Account'
             )}
           </button>
         </form>
 
-        {/* Divider */}
         <div className="auth-divider">
           <span>or</span>
         </div>
 
-        {/* Google Signup */}
         <button
           onClick={handleGoogleSignup}
           className="auth-button google"
-          disabled={isSubmitting || loading}
+          disabled={isSubmitting}
           type="button"
         >
           {isSubmitting ? (
@@ -218,7 +240,7 @@ export default function SignupPage({ onSwitchToLogin }) {
             </>
           ) : (
             <>
-              <svg className="google-icon" viewBox="0 0 24 24">
+              <svg className="google-icon" viewBox="0 0 24 24" aria-hidden="true">
                 <path
                   fill="currentColor"
                   d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -241,16 +263,11 @@ export default function SignupPage({ onSwitchToLogin }) {
           )}
         </button>
 
-        {/* Footer */}
         <p className="auth-footer">
           Already have an account?{' '}
-          <button
-            type="button"
-            onClick={onSwitchToLogin}
-            className="auth-link"
-          >
-            Sign in
-          </button>
+          <Link to="/login" className="auth-link">
+            Login
+          </Link>
         </p>
       </div>
     </motion.div>

@@ -1,19 +1,12 @@
-import { useEffect } from 'react';
+import { Navigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Loader } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 
-export default function ProtectedRoute({ children, onAuthRequired }) {
-  const { isAuthenticated, loading } = useAuth();
+export default function ProtectedRoute({ children }) {
+  const { isAuthenticated, initializing } = useAuth();
 
-  useEffect(() => {
-    if (!loading && !isAuthenticated) {
-      onAuthRequired?.();
-    }
-  }, [isAuthenticated, loading, onAuthRequired]);
-
-  // Show loading state
-  if (loading) {
+  if (initializing) {
     return (
       <motion.div
         initial={{ opacity: 0 }}
@@ -42,11 +35,9 @@ export default function ProtectedRoute({ children, onAuthRequired }) {
     );
   }
 
-  // Render children only if authenticated
-  if (isAuthenticated) {
-    return children;
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
   }
 
-  // Return null while redirecting (the redirect happens via onAuthRequired)
-  return null;
+  return children;
 }

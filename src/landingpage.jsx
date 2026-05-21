@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowRight, Check, PackageCheck, ReceiptText, TrendingUp } from "lucide-react";
 import { Button } from "./components/UI";
@@ -54,7 +55,7 @@ const features = [
   }
 ];
 
-const LandingPage = ({ onEnter, onSignIn, onSignUp, isAuthenticated }) => {
+const LandingPage = () => {
   return (
     <div className="landing-page">
       <div className="landing-background" aria-hidden="true">
@@ -76,14 +77,10 @@ const LandingPage = ({ onEnter, onSignIn, onSignUp, isAuthenticated }) => {
         <div className="landing-nav__links">
           <a href="#features">Features</a>
           <a href="#preview">Preview</a>
-          {isAuthenticated ? (
-            <Button size="sm" onClick={onEnter}>Go to Dashboard</Button>
-          ) : (
-            <>
-              <Button size="sm" variant="ghost" onClick={onSignIn}>Sign In</Button>
-              <Button size="sm" onClick={onSignUp}>Sign Up</Button>
-            </>
-          )}
+          <>
+            <Link to="/login"><Button size="sm" variant="ghost">Login</Button></Link>
+            <Link to="/signup"><Button size="sm">Create Account</Button></Link>
+          </>
         </div>
       </motion.nav>
 
@@ -110,23 +107,26 @@ const LandingPage = ({ onEnter, onSignIn, onSignUp, isAuthenticated }) => {
             </motion.p>
 
             <motion.div className="landing-hero__actions" variants={fadeUp}>
-              <motion.button
-                onClick={onEnter}
-                whileHover={{ backgroundColor: "var(--accent-hover)", y: -1 }}
-                whileTap={{ scale: 0.98 }}
-                className="landing-hero__primary"
-              >
-                Open Dashboard
-                <ArrowRight size={18} strokeWidth={2.5} />
-              </motion.button>
+              <Link to="/login" className="landing-hero__primary-link">
+                <motion.span
+                  whileHover={{ backgroundColor: "var(--accent-hover)", y: -1 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="landing-hero__primary"
+                >
+                  Get started
+                  <ArrowRight size={18} strokeWidth={2.5} />
+                </motion.span>
+              </Link>
 
-              <motion.button
-                whileHover={{ backgroundColor: "rgba(255, 255, 255, 0.92)", color: "var(--text-primary)", y: -1 }}
-                whileTap={{ scale: 0.98 }}
-                className="landing-hero__secondary"
-              >
-                View Demo
-              </motion.button>
+              <Link to="/signup" className="landing-hero__secondary-link">
+                <motion.span
+                  whileHover={{ backgroundColor: "rgba(255, 255, 255, 0.92)", color: "var(--text-primary)", y: -1 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="landing-hero__secondary"
+                >
+                  Create free account
+                </motion.span>
+              </Link>
             </motion.div>
 
             <motion.div className="landing-proof" variants={fadeUp}>

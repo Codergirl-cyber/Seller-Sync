@@ -1,17 +1,19 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Mail, Lock, AlertCircle, Loader } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
+import { useToast } from '../hooks/useToast';
 import '../styles/AuthPages.css';
 
-export default function LoginPage({ onSwitchToSignup }) {
-  const { signInWithPassword, signInWithGoogle, loading, error: authError } = useAuth();
+export default function LoginPage() {
+  const { signInWithPassword, signInWithGoogle, error: authError, clearError } = useAuth();
+  const { showToast } = useToast();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Load saved email on component mount
   useEffect(() => {
     const savedEmail = localStorage.getItem('userEmail');
     if (savedEmail) {
@@ -22,6 +24,7 @@ export default function LoginPage({ onSwitchToSignup }) {
   const handleEmailLogin = async (e) => {
     e.preventDefault();
     setError('');
+    clearError();
 
     if (!email || !password) {
       setError('Please fill in all fields');
@@ -30,12 +33,12 @@ export default function LoginPage({ onSwitchToSignup }) {
 
     try {
       setIsSubmitting(true);
-      // Save email to localStorage for next login
       localStorage.setItem('userEmail', email);
       await signInWithPassword(email, password);
-      // Redirect happens in App.jsx based on auth state
+      showToast('Welcome back!', 'success');
     } catch (err) {
-      setError(err.message || 'Login failed. Please try again.');
+      const message = err.message || 'Login failed. Please check your email and password.';
+      setError(message);
     } finally {
       setIsSubmitting(false);
     }
@@ -43,11 +46,14 @@ export default function LoginPage({ onSwitchToSignup }) {
 
   const handleGoogleLogin = async () => {
     setError('');
+    clearError();
     try {
       setIsSubmitting(true);
       await signInWithGoogle();
     } catch (err) {
-      setError(err.message || 'Google login failed. Please try again.');
+      const message = err.message || 'Google sign-in failed. Please try again.';
+      setError(message);
+      showToast(message, 'error');
     } finally {
       setIsSubmitting(false);
     }
@@ -63,25 +69,23 @@ export default function LoginPage({ onSwitchToSignup }) {
       className="auth-container"
     >
       <div className="auth-box">
-        {/* Header */}
         <div className="auth-header">
-          <h1>Welcome Back</h1>
-          <p>Sign in to your account</p>
+          <h1>Login</h1>
+          <p>Welcome back — sign in to your account</p>
         </div>
 
-        {/* Error Alert */}
         {displayError && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             className="error-alert"
+            role="alert"
           >
             <AlertCircle size={18} />
             <span>{displayError}</span>
           </motion.div>
         )}
 
-        {/* Email/Password Form */}
         <form onSubmit={handleEmailLogin} className="auth-form">
           <div className="form-group">
             <label htmlFor="email">Email Address</label>
@@ -92,14 +96,24 @@ export default function LoginPage({ onSwitchToSignup }) {
                 type="email"
                 placeholder="you@example.com"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                disabled={isSubmitting || loading}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  if (error) setError('');
+                  clearError();
+                }}
+                disabled={isSubmitting}
+                autoComplete="email"
               />
             </div>
           </div>
 
           <div className="form-group">
-            <label htmlFor="password">Password</label>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <label htmlFor="password">Password</label>
+              <Link to="/forgot-password" className="auth-link" style={{ fontSize: '13px' }}>
+                Forgot password?
+              </Link>
+            </div>
             <div className="input-wrapper">
               <Lock size={18} className="input-icon" />
               <input
@@ -107,8 +121,13 @@ export default function LoginPage({ onSwitchToSignup }) {
                 type="password"
                 placeholder="••••••••"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                disabled={isSubmitting || loading}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  if (error) setError('');
+                  clearError();
+                }}
+                disabled={isSubmitting}
+                autoComplete="current-password"
               />
             </div>
           </div>
@@ -116,29 +135,27 @@ export default function LoginPage({ onSwitchToSignup }) {
           <button
             type="submit"
             className="auth-button primary"
-            disabled={isSubmitting || loading}
+            disabled={isSubmitting}
           >
             {isSubmitting ? (
               <>
                 <Loader size={18} className="spinner" />
-                Signing in...
+                Logging in...
               </>
             ) : (
-              'Sign In'
+              'Login'
             )}
           </button>
         </form>
 
-        {/* Divider */}
         <div className="auth-divider">
           <span>or</span>
         </div>
 
-        {/* Google Login */}
         <button
           onClick={handleGoogleLogin}
           className="auth-button google"
-          disabled={isSubmitting || loading}
+          disabled={isSubmitting}
           type="button"
         >
           {isSubmitting ? (
@@ -148,7 +165,7 @@ export default function LoginPage({ onSwitchToSignup }) {
             </>
           ) : (
             <>
-              <svg className="google-icon" viewBox="0 0 24 24">
+              <svg className="google-icon" viewBox="0 0 24 24" aria-hidden="true">
                 <path
                   fill="currentColor"
                   d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -171,16 +188,11 @@ export default function LoginPage({ onSwitchToSignup }) {
           )}
         </button>
 
-        {/* Footer */}
         <p className="auth-footer">
-          Don't have an account?{' '}
-          <button
-            type="button"
-            onClick={onSwitchToSignup}
-            className="auth-link"
-          >
-            Sign up
-          </button>
+          New here?{' '}
+          <Link to="/signup" className="auth-link">
+            Create account
+          </Link>
         </p>
       </div>
     </motion.div>
