@@ -7,7 +7,7 @@ Built as a full-stack web application with authentication, inventory management,
 ## Live Demo
 
 🔗 Live: https://seller-sync-nine.vercel.app/ 
-🔗 GitHub: [Add repo link here]
+🔗 GitHub: https://github.com/Codergirl-cyber/Seller-Sync
 
 ---
 
