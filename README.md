@@ -11,19 +11,8 @@ Built as a full-stack web application with authentication, inventory management,
 
 ---
 
-## Screenshots
+<img width="1900" height="909" alt="image" src="https://github.com/user-attachments/assets/71075a96-d7b0-443f-89d4-cdebb89e6686" />
 
-### Dashboard
-![Dashboard](./screenshots/dashboard.png)
-
-### Products
-![Products](./screenshots/products.png)
-
-### Orders
-![Orders](./screenshots/orders.png)
-
-### Transactions
-![Transactions](./screenshots/transactions.png)
 
 ---
 
