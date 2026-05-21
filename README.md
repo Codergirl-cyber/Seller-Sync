@@ -26,15 +26,14 @@ Built as a full-stack web application with authentication, inventory management,
 - Protected app access
 
 ### Dashboard
-- Revenue overview
-- Total products
-- Orders tracking
-- Pending orders summary
-- Analytics cards
-- Activity section
+- Revenue overview from live transactions
+- 7-day sales chart
+- Top products by revenue
+- Actionable alerts (unpaid orders, low stock)
+- Recent activity feed
 
 ### Product Management
-- Add products
+- Add and edit products
 - Delete products
 - Stock management
 - Search products
@@ -54,12 +53,19 @@ Built as a full-stack web application with authentication, inventory management,
 - Revenue summaries
 - Net income calculations
 
+### Customers
+- CRM view built from order history
+- Repeat buyer and lifetime value stats
+- Per-customer order timeline
+
 ### UI / UX
-- Responsive design
+- Responsive design with mobile navigation
+- Dark mode
 - Loading skeletons
 - Empty states
 - Framer Motion animations
 - Error boundaries
+- Toast notifications
 - Shared component system
 
 ---
@@ -69,6 +75,7 @@ Built as a full-stack web application with authentication, inventory management,
 Frontend:
 - React 19
 - Vite
+- React Router
 - Framer Motion
 - Lucide React
 
@@ -102,6 +109,7 @@ User Login
 Dashboard
 ├── Products
 ├── Orders
+├── Customers
 ├── Transactions
 └── Settings
 
@@ -112,4 +120,51 @@ Dashboard
 Clone the repository:
 
 ```bash
-git clone https://github.com/Codergirl-cyber/Seller-Sync
+git clone https://github.com/Codergirl-cyber/Seller-Sync.git
+cd seller-sync
+npm install
+cp .env.local.example .env
+# Add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY
+npm run dev
+```
+
+### Environment variables
+
+| Variable | Description |
+|----------|-------------|
+| `VITE_SUPABASE_URL` | Supabase project URL |
+| `VITE_SUPABASE_ANON_KEY` | Supabase anon/public key |
+
+### Routes
+
+| Path | Description |
+|------|-------------|
+| `/` | Marketing landing |
+| `/login`, `/signup`, `/forgot-password` | Auth |
+| `/dashboard` | Overview & analytics |
+| `/products` | Inventory CRUD |
+| `/orders` | Order tracking |
+| `/customers` | Customer CRM (from orders) |
+| `/transactions` | Revenue ledger |
+| `/settings` | Store profile |
+
+### Database
+
+Apply RLS policies so each row is scoped to `auth.uid() = user_id`. See `supabase/schema.sql`. The app uses a `create_order_atomic` RPC for order creation with stock deduction.
+
+### Deploy
+
+`npm run build` then deploy `dist` to Vercel. Set the same env vars in your host dashboard.
+
+---
+
+## Portfolio highlights
+
+- Real Supabase auth (email + Google OAuth)
+- Multi-tenant queries with `user_id` filtering
+- Atomic order + stock RPC
+- React Router with protected shell
+- Toast feedback and live dashboard metrics from your data
+- Dark mode with persisted theme preference
+- Customer CRM page aggregated from order history
+
