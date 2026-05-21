@@ -1,117 +1,131 @@
+import { useState } from "react";
+import { NavLink, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { 
   LayoutDashboard, 
   Package, 
   ShoppingCart, 
+  Users,
   ReceiptIndianRupee, 
   Settings,
-  LogOut
+  LogOut,
+  Moon,
+  Sun,
+  X,
 } from "lucide-react";
 import { useAuth } from "./hooks/useAuth";
+import { useToast } from "./hooks/useToast";
+import { useTheme } from "./hooks/useTheme";
 
 const transition = { duration: 0.15, ease: [0.22, 1, 0.36, 1] };
 
-const Sidebar = ({ currentPage, setPage }) => {
+const menuItems = [
+  { path: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { path: "/products", label: "Products", icon: Package },
+  { path: "/orders", label: "Orders", icon: ShoppingCart },
+  { path: "/customers", label: "Customers", icon: Users },
+  { path: "/transactions", label: "Transactions", icon: ReceiptIndianRupee },
+  { path: "/settings", label: "Settings", icon: Settings },
+];
+
+const Sidebar = ({ mobileOpen, onMobileClose }) => {
   const { signOut, user } = useAuth();
+  const { showToast } = useToast();
+  const { toggleTheme, isDark } = useTheme();
+  const navigate = useNavigate();
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const handleLogout = async () => {
     try {
+      setIsLoggingOut(true);
       await signOut();
-      setPage("landing");
+      navigate("/");
+      showToast("You have been logged out.", "info");
     } catch (err) {
-      console.error("Logout error:", err);
+      showToast(err.message || "Could not log out. Please try again.", "error");
+    } finally {
+      setIsLoggingOut(false);
     }
   };
-  const menuItems = [
-    { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
-    { id: "products", label: "Products", icon: Package },
-    { id: "orders", label: "Orders", icon: ShoppingCart },
-    { id: "transactions", label: "Transactions", icon: ReceiptIndianRupee },
-    { id: "settings", label: "Settings", icon: Settings },
-  ];
+
+  const handleNav = () => {
+    onMobileClose?.();
+  };
 
   return (
-    <aside style={{
-      width: "236px",
-      background: "linear-gradient(180deg, rgba(255, 253, 247, 0.96), rgba(238, 241, 231, 0.9))",
-      borderRight: "1px solid rgba(95, 111, 63, 0.16)",
-      display: "flex",
-      flexDirection: "column",
-      padding: "32px 16px",
-      height: "100vh",
-      position: "sticky",
-      top: 0,
-      boxShadow: "12px 0 34px rgba(31, 33, 25, 0.04)"
-    }}>
-      <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "42px", padding: "0 8px" }}>
-        <div className="brand-mark" style={{ width: "24px", height: "24px", borderRadius: "5px" }} />
-        <span style={{ fontSize: "16px", fontWeight: "800", letterSpacing: 0 }}>SellerSync</span>
-      </div>
+    <>
+      {mobileOpen && (
+        <button
+          type="button"
+          className="sidebar-backdrop"
+          aria-label="Close menu"
+          onClick={onMobileClose}
+        />
+      )}
+      <aside className={`app-sidebar ${mobileOpen ? "is-open" : ""}`}>
+        <div className="app-sidebar__brand">
+          <div className="brand-mark" style={{ width: "24px", height: "24px", borderRadius: "5px" }} />
+          <span>SellerSync</span>
+          <button type="button" className="sidebar-close-mobile" onClick={onMobileClose} aria-label="Close menu">
+            <X size={18} />
+          </button>
+        </div>
 
-      <nav style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
-        {menuItems.map((item) => {
-          const isActive = currentPage === item.id;
-          const Icon = item.icon;
+        <nav className="app-sidebar__nav">
+          {menuItems.map((item) => {
+            const Icon = item.icon;
+            return (
+              <NavLink
+                key={item.path}
+                to={item.path}
+                onClick={handleNav}
+                className={({ isActive }) =>
+                  `app-sidebar__link ${isActive ? "is-active" : ""}`
+                }
+              >
+                {({ isActive }) => (
+                  <motion.span
+                    className="app-sidebar__link-inner"
+                    whileTap={{ scale: 0.98 }}
+                    transition={transition}
+                  >
+                    <Icon size={16} strokeWidth={isActive ? 2 : 1.5} />
+                    <span>{item.label}</span>
+                  </motion.span>
+                )}
+              </NavLink>
+            );
+          })}
+        </nav>
 
-          return (
-            <motion.button
-              key={item.id}
-              onClick={() => setPage(item.id)}
-              whileHover={{ backgroundColor: isActive ? "var(--accent-hover)" : "rgba(95, 111, 63, 0.08)" }}
-              whileTap={{ scale: 0.98 }}
-              transition={transition}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "12px",
-                padding: "10px 12px",
-                borderRadius: "var(--radius-md)",
-                border: isActive ? "1px solid rgba(38, 48, 24, 0.2)" : "1px solid transparent",
-                background: isActive ? "var(--accent)" : "transparent",
-                color: isActive ? "#ffffff" : "var(--text-secondary)",
-                cursor: "pointer",
-                textAlign: "left",
-                fontWeight: isActive ? "700" : "500",
-                boxShadow: isActive ? "0 12px 26px rgba(70, 84, 45, 0.18)" : "none"
-              }}
-            >
-              <Icon size={16} strokeWidth={isActive ? 2 : 1.5} />
-              <span style={{ fontSize: "13px" }}>{item.label}</span>
-            </motion.button>
-          );
-        })}
-      </nav>
+        <div className="app-sidebar__footer">
+          <div className="app-sidebar__user">{user?.email || "User"}</div>
+          <div className="app-sidebar__plan">Seller account</div>
 
-      <div style={{ marginTop: "auto", padding: "16px 8px", borderTop: "1px solid var(--border-subtle)" }}>
-        <div style={{ fontSize: "12px", fontWeight: "750", marginBottom: "8px" }}>{user?.email || "User"}</div>
-        <div style={{ fontSize: "11px", color: "var(--text-muted)", marginBottom: "12px" }}>Professional Plan</div>
-        
-        <motion.button
-          onClick={handleLogout}
-          whileHover={{ backgroundColor: "rgba(239, 68, 68, 0.1)" }}
-          whileTap={{ scale: 0.98 }}
-          transition={transition}
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "12px",
-            padding: "10px 12px",
-            borderRadius: "var(--radius-md)",
-            border: "1px solid rgba(239, 68, 68, 0.3)",
-            background: "transparent",
-            color: "#dc2626",
-            cursor: "pointer",
-            textAlign: "left",
-            fontWeight: "500",
-            width: "100%",
-            fontSize: "13px"
-          }}
-        >
-          <LogOut size={16} />
-          <span>Sign Out</span>
-        </motion.button>
-      </div>
-    </aside>
+          <button
+            type="button"
+            className="app-sidebar__theme"
+            onClick={toggleTheme}
+            aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
+          >
+            {isDark ? <Sun size={16} /> : <Moon size={16} />}
+            <span>{isDark ? "Light mode" : "Dark mode"}</span>
+          </button>
+
+          <motion.button
+            type="button"
+            onClick={handleLogout}
+            disabled={isLoggingOut}
+            className="app-sidebar__logout"
+            whileTap={{ scale: 0.98 }}
+            transition={transition}
+          >
+            <LogOut size={16} />
+            <span>{isLoggingOut ? "Logging out..." : "Log out"}</span>
+          </motion.button>
+        </div>
+      </aside>
+    </>
   );
 };
 
