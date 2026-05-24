@@ -236,9 +236,7 @@ textarea,
   color: var(--text-primary);
 }
 
-.landing-hero__secondary {
-  color: #000;
-}
+
 
 .caption {
   font-family: var(--font-accent);
@@ -990,10 +988,11 @@ textarea:focus {
 .landing-hero__secondary {
   background: rgba(255, 255, 255, 0.96);
   border: 1px solid rgba(17, 17, 17, 0.18);
-  color: var(--text-primary);
+  color: #111111;
   font-weight: 700;
   box-shadow: 0 18px 42px rgba(0, 0, 0, 0.12);
 }
+
 
 .landing-hero__secondary:hover,
 .landing-hero__secondary:focus-visible,
