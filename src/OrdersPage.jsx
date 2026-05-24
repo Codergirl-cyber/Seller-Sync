@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { supabase } from "./supabase";
+import { useAuth } from "./hooks/useAuth";
 import { Skeleton, Button, Input } from "./components/UI";
 import { Search, Plus, ShoppingBag, AtSign, AlertCircle, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -7,6 +8,7 @@ import { useToast } from "./hooks/useToast";
 
 export default function OrdersPage() {
     const { showToast } = useToast();
+    const { user } = useAuth();
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState("");
@@ -29,15 +31,14 @@ export default function OrdersPage() {
     });
 
     const fetchOrders = async () => {
+        if (!user) {
+            setOrders([]);
+            setLoading(false);
+            return;
+        }
+
         try {
             setLoading(true);
-            const { data: { user } } = await supabase.auth.getUser();
-            if (!user) {
-                console.warn('No user authenticated');
-                setOrders([]);
-                setLoading(false);
-                return;
-            }
 
             const { data, error } = await supabase
                 .from("orders")
@@ -56,7 +57,6 @@ export default function OrdersPage() {
     };
 
     const fetchProducts = async () => {
-        const { data: { user } } = await supabase.auth.getUser();
         if (!user) return;
 
         const { data, error } = await supabase
@@ -74,9 +74,10 @@ export default function OrdersPage() {
     };
 
     useEffect(() => {
+        if (!user) return;
         fetchOrders();
         fetchProducts();
-    }, []);
+    }, [user]);
 
     const createOrder = async (e) => {
         e.preventDefault();
@@ -94,7 +95,6 @@ export default function OrdersPage() {
         }
 
         try {
-            const { data: { user } } = await supabase.auth.getUser();
             if (!user) {
                 showToast("Please log in to create orders.", "error");
                 return;
@@ -140,7 +140,6 @@ export default function OrdersPage() {
 
     const updateStatus = async (id, field, value) => {
         try {
-            const { data: { user } } = await supabase.auth.getUser();
             if (!user) {
                 showToast("Please log in to update orders", "error");
                 return;

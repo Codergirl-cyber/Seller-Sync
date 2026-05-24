@@ -109,7 +109,7 @@ const Sidebar = ({ mobileOpen, onMobileClose }) => {
             aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
           >
             {isDark ? <Sun size={16} /> : <Moon size={16} />}
-            <span>{isDark ? "Light mode" : "Dark mode"}</span>
+            <span>{isDark ? "Light ☀️" : "Dark 🌙"}</span>
           </button>
 
           <motion.button

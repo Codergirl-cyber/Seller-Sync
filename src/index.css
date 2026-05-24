@@ -62,71 +62,107 @@
   --shadow-lg: 0 18px 42px rgba(31, 33, 25, 0.1);
   --shadow-xl: 0 34px 90px rgba(44, 49, 30, 0.18), 0 12px 34px rgba(93, 75, 47, 0.1);
 
-  /* Aliases used by auth + loading screens */
-  --bg-primary: var(--bg);
-  --bg-secondary: var(--surface-raised);
-  --card-bg: var(--surface);
+  /* Semantic tokens (light = default design) */
+  --background: #f5f3ed;
+  --card: #fffdf7;
+  --text-primary: #1f2119;
+  --text-secondary: #626052;
+  --border: #ded6c7;
+  --accent: #5f6f3f;
+
+  /* Legacy aliases — unchanged light appearance */
+  --bg: var(--background);
+  --surface: var(--card);
+  --bg-primary: var(--background);
+  --bg-secondary: #fbf8ef;
+  --card-bg: var(--card);
   --border-color: var(--border);
   --sidebar-bg: linear-gradient(180deg, rgba(255, 253, 247, 0.96), rgba(238, 241, 231, 0.9));
   --stat-card-bg: rgba(255, 253, 247, 0.78);
 }
 
+/* Explicit light attribute keeps original palette when toggling back from dark */
+[data-theme="light"] {
+  color-scheme: light;
+}
+
 [data-theme="dark"] {
-  --accent: #9cb86e;
-  --accent-hover: #b5d48a;
-  --accent-soft: #2a3220;
-  --accent-ink: #e8edd8;
-  --warm: #c4a574;
-  --warm-soft: #2e2820;
+  color-scheme: dark;
 
-  --bg: #121410;
-  --surface: #1a1c16;
-  --surface-raised: #22251e;
-  --surface-hover: #2c3026;
-  --border: #3a4034;
-  --border-subtle: #2e3228;
-  --text-primary: #f0efe6;
-  --text-secondary: #b5b2a4;
-  --text-muted: #7f7c72;
-  --primary: #d8e4c0;
-  --primary-hover: #eef5e0;
-  --success: #8faa62;
-  --warning: #d4a24e;
-  --error: #e07a6e;
+  /* Semantic dark palette — WCAG-friendly contrast on olive brand */
+  --background: #141612;
+  --card: #1f2119;
+  --text-primary: #f6f5f0;
+  --text-secondary: #c8c4b6;
+  --border: #4a4f42;
+  --accent: #b5ce7a;
+  --accent-hover: #c8dd92;
+  --accent-soft: #2e3524;
+  --accent-ink: #eef2e4;
+  --warm-soft: #2a261f;
 
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.35);
-  --shadow-md: 0 10px 22px rgba(0, 0, 0, 0.4);
-  --shadow-lg: 0 18px 42px rgba(0, 0, 0, 0.45);
-  --shadow-xl: 0 34px 90px rgba(0, 0, 0, 0.5);
+  --bg: var(--background);
+  --surface: var(--card);
+  --surface-raised: #282b24;
+  --surface-hover: #33372e;
+  --border-subtle: #3a3f35;
+  --text-muted: #9a968a;
+  --primary: #e8edd8;
+  --primary-hover: #f5f8ec;
+  --success: #9cb86e;
+  --warning: #e0b85c;
+  --error: #e8958a;
 
-  --bg-primary: var(--bg);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.45);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.55);
+  --shadow-xl: 0 24px 60px rgba(0, 0, 0, 0.6);
+
+  --bg-primary: var(--background);
   --bg-secondary: var(--surface-raised);
-  --card-bg: var(--surface);
+  --card-bg: var(--card);
   --border-color: var(--border);
-  --sidebar-bg: linear-gradient(180deg, rgba(26, 28, 22, 0.98), rgba(18, 20, 16, 0.96));
-  --stat-card-bg: rgba(34, 37, 30, 0.9);
+  --sidebar-bg: linear-gradient(180deg, #22251e 0%, #181a15 100%);
+  --stat-card-bg: #252820;
 }
 
 [data-theme="dark"] body {
   background:
-    linear-gradient(135deg, rgba(156, 184, 110, 0.06), transparent 38%),
-    linear-gradient(315deg, rgba(196, 165, 116, 0.05), transparent 42%),
-    var(--bg);
+    linear-gradient(135deg, rgba(181, 206, 122, 0.07), transparent 38%),
+    linear-gradient(315deg, rgba(138, 106, 69, 0.06), transparent 42%),
+    var(--background);
+}
+
+[data-theme="dark"] .skeleton {
+  background: linear-gradient(90deg, var(--border-subtle), #2e3228, var(--border-subtle));
+}
+
+[data-theme="dark"] .app-sidebar__link.is-active {
+  color: #1f2119;
 }
 
 [data-theme="dark"] .toast--success {
-  background: rgba(42, 50, 32, 0.98);
-  color: #b5d48a;
+  background: #2a3220;
+  color: #c8dd92;
+  border-color: rgba(181, 206, 122, 0.35);
 }
 
 [data-theme="dark"] .toast--error {
-  background: rgba(50, 28, 26, 0.98);
-  color: #f0a8a0;
+  background: #3a221e;
+  color: #f5c4be;
+  border-color: rgba(232, 149, 138, 0.35);
 }
 
 [data-theme="dark"] .toast--info {
-  background: rgba(28, 36, 50, 0.98);
-  color: #93c5fd;
+  background: #1e2638;
+  color: #b8d4fe;
+  border-color: rgba(147, 197, 253, 0.35);
+}
+
+[data-theme="dark"] .insight-banner--warning {
+  background: rgba(224, 184, 92, 0.12);
+  border-color: rgba(224, 184, 92, 0.4);
+  color: var(--text-secondary);
 }
 
 * {

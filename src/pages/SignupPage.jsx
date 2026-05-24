@@ -72,6 +72,7 @@ export default function SignupPage() {
         setSuccess('Account created! Taking you to your dashboard...');
         showToast('Account created successfully!', 'success');
         localStorage.setItem('userEmail', formData.email);
+        navigate('/dashboard', { replace: true });
       } else {
         setSuccess(
           'Account created! Check your email to confirm, then login.'
@@ -110,7 +111,6 @@ export default function SignupPage() {
       const message = err.message || 'Google sign-in failed. Please try again.';
       setError(message);
       showToast(message, 'error');
-    } finally {
       setIsSubmitting(false);
     }
   };
@@ -126,8 +126,8 @@ export default function SignupPage() {
     >
       <div className="auth-box">
         <div className="auth-header">
-          <h1>Create Account</h1>
-          <p>Start managing your Instagram shop in one place</p>
+          <h1>Sign up</h1>
+          <p>Create your SellerSync account to manage your Instagram shop</p>
         </div>
 
         {success && (
@@ -218,7 +218,7 @@ export default function SignupPage() {
                 Creating account...
               </>
             ) : (
-              'Create Account'
+              'Sign up'
             )}
           </button>
         </form>
@@ -266,7 +266,7 @@ export default function SignupPage() {
         <p className="auth-footer">
           Already have an account?{' '}
           <Link to="/login" className="auth-link">
-            Login
+            Log in
           </Link>
         </p>
       </div>

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { supabase } from "./supabase";
+import { useAuth } from "./hooks/useAuth";
 import { Button, Badge, Skeleton, Input, springConfig } from "./components/UI";
 import { Plus, Search, Edit2, Trash2, PackagePlus } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -9,6 +10,7 @@ const emptyProduct = { name: "", price: "", stock: "" };
 
 export default function ProductsPage() {
     const { showToast } = useToast();
+    const { user } = useAuth();
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState("");
@@ -18,13 +20,14 @@ export default function ProductsPage() {
     const [saving, setSaving] = useState(false);
 
     const fetchProducts = async () => {
+        if (!user) {
+            setProducts([]);
+            setLoading(false);
+            return;
+        }
+
         try {
             setLoading(true);
-            const { data: { user } } = await supabase.auth.getUser();
-            if (!user) {
-                setProducts([]);
-                return;
-            }
 
             const { data, error } = await supabase
                 .from("products")
@@ -44,8 +47,9 @@ export default function ProductsPage() {
     };
 
     useEffect(() => {
+        if (!user) return;
         fetchProducts();
-    }, []);
+    }, [user]);
 
     const openCreate = () => {
         setEditingId(null);
@@ -77,7 +81,6 @@ export default function ProductsPage() {
 
         try {
             setSaving(true);
-            const { data: { user } } = await supabase.auth.getUser();
             if (!user) {
                 showToast("Please log in to manage inventory.", "error");
                 return;
@@ -124,7 +127,6 @@ export default function ProductsPage() {
     const deleteProduct = async (id) => {
         if (!window.confirm("Remove this product from inventory?")) return;
 
-        const { data: { user } } = await supabase.auth.getUser();
         if (!user) return;
 
         const { error } = await supabase.from("products").delete().eq("id", id).eq("user_id", user.id);

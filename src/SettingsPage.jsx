@@ -107,14 +107,14 @@ const SettingsPage = () => {
                     onClick={() => setTheme('light')}
                   >
                     <Sun size={16} />
-                    Light
+                    Light ☀️
                   </Button>
                   <Button
                     variant={theme === 'dark' ? 'primary' : 'secondary'}
                     onClick={() => setTheme('dark')}
                   >
                     <Moon size={16} />
-                    Dark
+                    Dark 🌙
                   </Button>
                 </div>
               </Card>

@@ -1,18 +1,25 @@
 import { supabase } from '../supabase';
 
+function client() {
+  if (!supabase) {
+    throw new Error('Supabase is not configured');
+  }
+  return supabase;
+}
+
 /**
  * Fetch data for the current authenticated user
  * Automatically includes user_id filter for RLS
  */
 export async function fetchUserData(table, options = {}) {
   try {
-    const { data: { user } } = await supabase.auth.getUser();
+    const { data: { user } } = await client().auth.getUser();
     
     if (!user) {
       throw new Error('User not authenticated');
     }
 
-    let query = supabase
+    let query = client()
       .from(table)
       .select(options.select || '*')
       .eq('user_id', user.id);
@@ -52,13 +59,13 @@ export async function fetchUserData(table, options = {}) {
  */
 export async function insertUserData(table, record) {
   try {
-    const { data: { user } } = await supabase.auth.getUser();
+    const { data: { user } } = await client().auth.getUser();
     
     if (!user) {
       throw new Error('User not authenticated');
     }
 
-    const { data, error } = await supabase
+    const { data, error } = await client()
       .from(table)
       .insert([
         {
@@ -82,13 +89,13 @@ export async function insertUserData(table, record) {
  */
 export async function updateUserData(table, id, updates) {
   try {
-    const { data: { user } } = await supabase.auth.getUser();
+    const { data: { user } } = await client().auth.getUser();
     
     if (!user) {
       throw new Error('User not authenticated');
     }
 
-    const { data, error } = await supabase
+    const { data, error } = await client()
       .from(table)
       .update(updates)
       .eq('id', id)
@@ -114,13 +121,13 @@ export async function updateUserData(table, id, updates) {
  */
 export async function deleteUserData(table, id) {
   try {
-    const { data: { user } } = await supabase.auth.getUser();
+    const { data: { user } } = await client().auth.getUser();
     
     if (!user) {
       throw new Error('User not authenticated');
     }
 
-    const { error } = await supabase
+    const { error } = await client()
       .from(table)
       .delete()
       .eq('id', id)
@@ -138,7 +145,7 @@ export async function deleteUserData(table, id) {
  */
 export async function getCurrentUser() {
   try {
-    const { data: { user } } = await supabase.auth.getUser();
+    const { data: { user } } = await client().auth.getUser();
     return user;
   } catch (err) {
     console.error('Error getting current user:', err.message);

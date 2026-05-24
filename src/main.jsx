@@ -8,10 +8,11 @@ import { ThemeProvider } from './context/ThemeContext'
 import { ToastProvider } from './context/ToastContext'
 import ErrorBoundary from './components/ErrorBoundary'
 
-const storedTheme = localStorage.getItem('sellersync_theme')
-if (storedTheme === 'dark' || storedTheme === 'light') {
-  document.documentElement.setAttribute('data-theme', storedTheme)
-}
+// Default light; only apply dark when user explicitly saved it
+document.documentElement.setAttribute(
+  'data-theme',
+  localStorage.getItem('sellersync_theme') === 'dark' ? 'dark' : 'light'
+)
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>

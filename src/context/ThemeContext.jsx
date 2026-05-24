@@ -4,19 +4,22 @@ const STORAGE_KEY = 'sellersync_theme';
 
 const ThemeContext = createContext(null);
 
+/** Default is always light unless the user explicitly chose dark. */
 function getInitialTheme() {
   if (typeof window === 'undefined') return 'light';
-  const stored = localStorage.getItem(STORAGE_KEY);
-  if (stored === 'light' || stored === 'dark') return stored;
-  if (window.matchMedia?.('(prefers-color-scheme: dark)').matches) return 'dark';
-  return 'light';
+  return localStorage.getItem(STORAGE_KEY) === 'dark' ? 'dark' : 'light';
 }
 
 export function ThemeProvider({ children }) {
   const [theme, setThemeState] = useState(getInitialTheme);
 
   useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme);
+    const root = document.documentElement;
+    if (theme === 'dark') {
+      root.setAttribute('data-theme', 'dark');
+    } else {
+      root.setAttribute('data-theme', 'light');
+    }
     localStorage.setItem(STORAGE_KEY, theme);
   }, [theme]);
 

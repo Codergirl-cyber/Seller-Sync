@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "./supabase";
+import { useAuth } from "./hooks/useAuth";
 import { Skeleton, springConfig } from "./components/UI";
 import { motion } from "framer-motion";
 import { ShoppingBag, AlertTriangle, Package, TrendingUp } from "lucide-react";
@@ -40,15 +41,16 @@ const Dashboard = () => {
     const [insights, setInsights] = useState([]);
     const [loading, setLoading] = useState(true);
 
+    const { user } = useAuth();
+
     useEffect(() => {
         const fetchStats = async () => {
-            try {
-                const { data: { user } } = await supabase.auth.getUser();
-                if (!user) {
-                    setLoading(false);
-                    return;
-                }
+            if (!user) {
+                setLoading(false);
+                return;
+            }
 
+            try {
                 const [ordersRes, productsRes, transRes] = await Promise.all([
                     supabase.from("orders").select("id, customer_name, product_name, price, payment_status, delivery_status, order_date").eq("user_id", user.id).order("order_date", { ascending: false }),
                     supabase.from("products").select("id, name, stock").eq("user_id", user.id),
@@ -125,7 +127,7 @@ const Dashboard = () => {
             }
         };
         fetchStats();
-    }, []);
+    }, [user]);
 
     const chartMax = useMemo(
         () => Math.max(...chartData.map((d) => d.amount), 1),

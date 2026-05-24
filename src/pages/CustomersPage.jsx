@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "../supabase";
+import { useAuth } from "../hooks/useAuth";
 import { Skeleton, Badge, Button } from "../components/UI";
 import { Search, Users, AtSign, ShoppingBag, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -39,6 +40,7 @@ function aggregateCustomers(orders) {
 
 export default function CustomersPage() {
   const { showToast } = useToast();
+  const { user } = useAuth();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -48,9 +50,9 @@ export default function CustomersPage() {
     const load = async () => {
       try {
         setLoading(true);
-        const { data: { user } } = await supabase.auth.getUser();
         if (!user) {
           setOrders([]);
+          setLoading(false);
           return;
         }
 
@@ -71,8 +73,7 @@ export default function CustomersPage() {
       }
     };
     load();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [user]);
 
   const customers = useMemo(() => aggregateCustomers(orders), [orders]);
 

@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { useState } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Mail, Lock, AlertCircle, Loader } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
@@ -7,19 +7,16 @@ import { useToast } from '../hooks/useToast';
 import '../styles/AuthPages.css';
 
 export default function LoginPage() {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const redirectTo = location.state?.from || '/dashboard';
+
   const { signInWithPassword, signInWithGoogle, error: authError, clearError } = useAuth();
   const { showToast } = useToast();
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState(() => localStorage.getItem('userEmail') || '');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  useEffect(() => {
-    const savedEmail = localStorage.getItem('userEmail');
-    if (savedEmail) {
-      setEmail(savedEmail);
-    }
-  }, []);
 
   const handleEmailLogin = async (e) => {
     e.preventDefault();
@@ -36,6 +33,7 @@ export default function LoginPage() {
       localStorage.setItem('userEmail', email);
       await signInWithPassword(email, password);
       showToast('Welcome back!', 'success');
+      navigate(redirectTo, { replace: true });
     } catch (err) {
       const message = err.message || 'Login failed. Please check your email and password.';
       setError(message);
@@ -50,11 +48,11 @@ export default function LoginPage() {
     try {
       setIsSubmitting(true);
       await signInWithGoogle();
+      // Browser redirects to Google — keep loading state
     } catch (err) {
       const message = err.message || 'Google sign-in failed. Please try again.';
       setError(message);
       showToast(message, 'error');
-    } finally {
       setIsSubmitting(false);
     }
   };
@@ -70,8 +68,8 @@ export default function LoginPage() {
     >
       <div className="auth-box">
         <div className="auth-header">
-          <h1>Login</h1>
-          <p>Welcome back — sign in to your account</p>
+          <h1>Log in</h1>
+          <p>Welcome back — sign in to your SellerSync account</p>
         </div>
 
         {displayError && (
@@ -143,7 +141,7 @@ export default function LoginPage() {
                 Logging in...
               </>
             ) : (
-              'Login'
+              'Log in'
             )}
           </button>
         </form>
@@ -161,7 +159,7 @@ export default function LoginPage() {
           {isSubmitting ? (
             <>
               <Loader size={18} className="spinner" />
-              Redirecting...
+              Redirecting to Google...
             </>
           ) : (
             <>
@@ -189,9 +187,9 @@ export default function LoginPage() {
         </button>
 
         <p className="auth-footer">
-          New here?{' '}
+          Don&apos;t have an account?{' '}
           <Link to="/signup" className="auth-link">
-            Create account
+            Sign up
           </Link>
         </p>
       </div>

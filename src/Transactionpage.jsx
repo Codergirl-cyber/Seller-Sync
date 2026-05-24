@@ -1,11 +1,13 @@
 import { useState, useEffect } from "react";
 import { supabase } from "./supabase";
+import { useAuth } from "./hooks/useAuth";
 import { Skeleton } from "./components/UI";
 import { ArrowUpRight, ArrowDownLeft, Search, CheckCircle, XCircle, Clock } from "lucide-react";
 import { useToast } from "./hooks/useToast";
 
 export default function TransactionsPage() {
     const { showToast } = useToast();
+    const { user } = useAuth();
     const [transactions, setTransactions] = useState([]);
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState("");
@@ -13,13 +15,14 @@ export default function TransactionsPage() {
     const [updating, setUpdating] = useState(null); // Track which transaction is being updated
 
     const fetchTransactions = async () => {
+        if (!user) {
+            setTransactions([]);
+            setLoading(false);
+            return;
+        }
+
         try {
             setLoading(true);
-            const { data: { user } } = await supabase.auth.getUser();
-            if (!user) {
-                setTransactions([]);
-                return;
-            }
 
             const { data, error } = await supabase
                 .from("transactions")
@@ -38,14 +41,13 @@ export default function TransactionsPage() {
     };
 
     useEffect(() => {
+        if (!user) return;
         fetchTransactions();
-    }, []);
+    }, [user]);
 
     const updateTransactionStatus = async (txnId, newStatus) => {
         try {
             setUpdating(txnId);
-            const { data: { user } } = await supabase.auth.getUser();
-            
             if (!user) {
                 showToast("Please log in to update transactions", "error");
                 return;

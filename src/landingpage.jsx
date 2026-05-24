@@ -78,8 +78,8 @@ const LandingPage = () => {
           <a href="#features">Features</a>
           <a href="#preview">Preview</a>
           <>
-            <Link to="/login"><Button size="sm" variant="ghost">Login</Button></Link>
-            <Link to="/signup"><Button size="sm">Create Account</Button></Link>
+            <Link to="/login"><Button size="sm" variant="ghost">Log in</Button></Link>
+            <Link to="/signup"><Button size="sm">Sign up</Button></Link>
           </>
         </div>
       </motion.nav>
@@ -124,7 +124,7 @@ const LandingPage = () => {
                   whileTap={{ scale: 0.98 }}
                   className="landing-hero__secondary"
                 >
-                  Create free account
+                  Sign up free
                 </motion.span>
               </Link>
             </motion.div>

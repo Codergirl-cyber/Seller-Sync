@@ -4,6 +4,7 @@ import { Loader } from "lucide-react";
 import { useAuth } from "./hooks/useAuth";
 import ProtectedRoute from "./components/ProtectedRoute";
 import ProtectedLayout from "./components/ProtectedLayout";
+import SupabaseConfigScreen from "./components/SupabaseConfigScreen";
 import LandingPage from "./landingpage";
 import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
@@ -27,7 +28,7 @@ function AuthLoadingScreen({ message = "Loading..." }) {
         justifyContent: "center",
         height: "100vh",
         width: "100vw",
-        backgroundColor: "var(--bg-primary)",
+        backgroundColor: "var(--background)",
       }}
     >
       <div style={{ textAlign: "center" }}>
@@ -45,11 +46,7 @@ function AuthLoadingScreen({ message = "Loading..." }) {
 }
 
 function PublicOnlyRoute({ children }) {
-  const { isAuthenticated, initializing } = useAuth();
-
-  if (initializing) {
-    return <AuthLoadingScreen message="Loading..." />;
-  }
+  const { isAuthenticated } = useAuth();
 
   if (isAuthenticated) {
     return <Navigate to="/dashboard" replace />;
@@ -59,7 +56,11 @@ function PublicOnlyRoute({ children }) {
 }
 
 export default function App() {
-  const { isAuthenticated, initializing } = useAuth();
+  const { isAuthenticated, initializing, isConfigured } = useAuth();
+
+  if (!isConfigured) {
+    return <SupabaseConfigScreen />;
+  }
 
   if (initializing) {
     return <AuthLoadingScreen message="Restoring your session..." />;
