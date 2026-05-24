@@ -236,6 +236,10 @@ textarea,
   color: var(--text-primary);
 }
 
+.landing-hero__secondary {
+  color: #000;
+}
+
 .caption {
   font-family: var(--font-accent);
   font-size: 12px;
