@@ -1,7 +1,8 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowRight, Check, PackageCheck, ReceiptText, TrendingUp } from "lucide-react";
+import { ArrowRight, Check, Moon, PackageCheck, ReceiptText, Sun, TrendingUp } from "lucide-react";
 import { Button } from "./components/UI";
+import { useTheme } from "./context/ThemeContext";
 
 const ease = [0.22, 1, 0.36, 1];
 
@@ -56,6 +57,8 @@ const features = [
 ];
 
 const LandingPage = () => {
+  const { toggleTheme, isDark } = useTheme();
+
   return (
     <div className="landing-page">
       <div className="landing-background" aria-hidden="true">
@@ -75,6 +78,17 @@ const LandingPage = () => {
           SellerSync
         </div>
         <div className="landing-nav__links">
+          <Button
+            type="button"
+            size="sm"
+            variant="ghost"
+            className="landing-theme-toggle"
+            onClick={toggleTheme}
+            aria-label={`Switch to ${isDark ? "light" : "dark"} mode`}
+          >
+            {isDark ? <Sun size={16} /> : <Moon size={16} />}
+            {isDark ? "Light" : "Dark"}
+          </Button>
           <a href="#features">Features</a>
           <a href="#preview">Preview</a>
           <>
@@ -217,15 +231,19 @@ const LandingPage = () => {
             <h2>Everything important stays visible.</h2>
           </motion.div>
 
-          <div className="landing-features__grid">
-            {features.map(({ icon: Icon, title, desc }) => (
-              <motion.div className="landing-feature" key={title} variants={fadeUp}>
-                <Icon size={20} strokeWidth={2.1} />
-                <h3>{title}</h3>
-                <p>{desc}</p>
-              </motion.div>
-            ))}
-          </div>
+          <motion.div className="landing-features__panel" variants={fadeUp}>
+            <div className="landing-features__deck">
+              {features.map(({ icon: Icon, title, desc }) => (
+                <div className="landing-feature" key={title}>
+                  <div className="landing-feature__head">
+                    <Icon size={20} strokeWidth={2.1} />
+                    <h3>{title}</h3>
+                  </div>
+                  <p>{desc}</p>
+                </div>
+              ))}
+            </div>
+          </motion.div>
         </motion.section>
       </main>
 
