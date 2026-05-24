@@ -156,60 +156,208 @@ const LandingPage = () => {
             initial="hidden"
             animate="visible"
           >
-            <div className="landing-product">
-              <aside className="landing-product__sidebar">
-                <div className="landing-product__brand">
-                  <span />
-                  SellerSync
-                </div>
-                {["Dashboard", "Orders", "Products", "Revenue"].map((item) => (
-                  <div className={item === "Dashboard" ? "is-active" : ""} key={item}>{item}</div>
-                ))}
-              </aside>
+            <div className="landing-mockupScene">
+              <div className="landing-mockupScene__tilt" aria-hidden="true" />
 
-              <main className="landing-product__main">
-                <div className="landing-product__topbar">
-                  <span>Today</span>
-                  <span>Instagram shop</span>
+              <div className="landing-mockupLayers" aria-hidden="true">
+                <div className="landing-mockupLayers__layer landing-mockupLayers__layer--back" />
+                <div className="landing-mockupLayers__layer landing-mockupLayers__layer--mid" />
+              </div>
+
+              <div className="landing-mockup" role="img" aria-label="Today’s selling flow mockup">
+                <div className="landing-mockup__top">
+                  <div className="landing-mockup__brand">
+                    <span className="landing-mockup__brandMark" />
+                    SellerSync
+                  </div>
+
+                  <div className="landing-mockup__badges">
+                    <span className="landing-pill landing-pill--accent">Today</span>
+                    <span className="landing-pill">Instagram shop</span>
+                  </div>
                 </div>
 
-                <div className="landing-product__heading">
-                  <p className="caption">Command center</p>
-                  <h2>Today&apos;s selling flow</h2>
+                <div className="landing-mockup__title">
+                  <p className="caption">Today’s selling flow</p>
+                  <h2>Revenue → Orders → Inventory</h2>
                 </div>
 
-                <div className="landing-product__metrics">
-                  {metrics.map(({ label, value, hint }) => (
-                    <div className="landing-product__metric" key={label}>
-                      <span>{label}</span>
-                      <strong>{value}</strong>
-                      <small>{hint}</small>
-                    </div>
+                <div className="landing-mockup__stats">
+                  {metrics.map(({ label, value, hint }, idx) => (
+                    <motion.div
+                      className="landing-statWide"
+                      key={label}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.45, delay: 0.08 * idx }}
+                      whileHover={{ y: -3 }}
+                    >
+                      <div className="landing-statWide__head">
+                        <span className="landing-statWide__label">{label}</span>
+                        <span className="landing-statWide__trend">
+                          {idx === 0 ? "+12.7%" : idx === 1 ? "+8.1%" : "Stable"}
+                        </span>
+                      </div>
+                      <div className="landing-statWide__value">{value}</div>
+                      <div className="landing-statWide__hint">{hint}</div>
+                      <div
+                        className={`landing-statWide__spark landing-statWide__spark--${idx}`}
+                        aria-hidden="true"
+                      />
+                    </motion.div>
                   ))}
                 </div>
 
-                <div className="landing-product__workspace">
-                  <section className="landing-product__panel landing-product__orders">
-                    <div className="landing-product__panel-title">Recent orders</div>
-                    {orders.map(([name, item, status]) => (
-                      <div className="landing-product__row" key={name}>
-                        <span>{name}</span>
-                        <span>{item}</span>
-                        <strong>{status}</strong>
-                      </div>
-                    ))}
-                  </section>
+                <div className="landing-mockup__grid">
+                  <motion.section
+                    className="landing-glass landing-flow"
+                    initial={{ opacity: 0, y: 14 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 0.22 }}
+                    whileHover={{ y: -2 }}
+                  >
+                    <div className="landing-glass__head">
+                      <span className="landing-glass__title">Orders activity</span>
+                      <span className="landing-glass__meta">Last 2 hours</span>
+                    </div>
 
-                  <section className="landing-product__panel landing-product__chart">
-                    <div className="landing-product__panel-title">Sales momentum</div>
-                    <div className="landing-product__bars">
-                      {[38, 52, 44, 68, 58, 82, 76, 94].map((height, index) => (
-                        <span style={{ height: `${height}%` }} key={index} />
+                    <div className="landing-orderPills" aria-label="Order activity">
+                      {[
+                        { text: "Paid", tone: "accent" },
+                        { text: "Packed", tone: "good" },
+                        { text: "Shipped", tone: "blue" },
+                        { text: "Pending", tone: "warn" }
+                      ].map((p) => (
+                        <span key={p.text} className={`landing-pill landing-pill--${p.tone}`}>
+                          {p.text}
+                        </span>
+                      ))}
+                    </div>
+
+                    <div className="landing-miniChart" aria-hidden="true">
+                      <div className="landing-miniChart__axis" />
+                      <div className="landing-miniChart__line" />
+                      <div className="landing-miniChart__bars">
+                        {[22, 28, 19, 34, 26, 41, 36, 49].map((h, i) => (
+                          <span key={i} style={{ height: `${h}px` }} />
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="landing-salesIndicators">
+                      <div className="landing-indicator">
+                        <span className="landing-indicator__k">Conversion</span>
+                        <strong className="landing-indicator__v">3.8%</strong>
+                      </div>
+                      <div className="landing-indicator">
+                        <span className="landing-indicator__k">Avg. order</span>
+                        <strong className="landing-indicator__v">₹2.4k</strong>
+                      </div>
+                      <div className="landing-indicator landing-indicator--accent">
+                        <span className="landing-indicator__k">Fulfillment</span>
+                        <strong className="landing-indicator__v">98%</strong>
+                      </div>
+                    </div>
+                  </motion.section>
+
+                  <section className="landing-glass landing-side" aria-label="Sales notifications and recent orders">
+                    <div className="landing-glass__head">
+                      <span className="landing-glass__title">Notifications</span>
+                      <span className="landing-glass__meta">Auto-updating</span>
+                    </div>
+
+                    <div className="landing-notifications">
+                      <motion.div
+                        className="landing-toast"
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.45, delay: 0.32 }}
+                      >
+                        <span className="landing-toast__dot landing-toast__dot--accent" />
+                        <div>
+                          <div className="landing-toast__title">New order</div>
+                          <div className="landing-toast__body">Silk scarf · Paid</div>
+                        </div>
+                        <span className="landing-toast__time">2m</span>
+                      </motion.div>
+
+                      <motion.div
+                        className="landing-toast"
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.45, delay: 0.38 }}
+                      >
+                        <span className="landing-toast__dot landing-toast__dot--good" />
+                        <div>
+                          <div className="landing-toast__title">Inventory synced</div>
+                          <div className="landing-toast__body">Gold hoops · 12 left</div>
+                        </div>
+                        <span className="landing-toast__time">7m</span>
+                      </motion.div>
+
+                      <motion.div
+                        className="landing-toast landing-toast--muted"
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.45, delay: 0.44 }}
+                      >
+                        <span className="landing-toast__dot landing-toast__dot--blue" />
+                        <div>
+                          <div className="landing-toast__title">Revenue pulse</div>
+                          <div className="landing-toast__body">+₹14.2k this week</div>
+                        </div>
+                        <span className="landing-toast__time">Now</span>
+                      </motion.div>
+                    </div>
+
+                    <div className="landing-recentOrders" aria-label="Recent orders">
+                      <div className="landing-glass__head landing-glass__head--tight">
+                        <span className="landing-glass__title">Recent</span>
+                        <span className="landing-glass__meta">3 updates</span>
+                      </div>
+
+                      {orders.map(([name, item, status], i) => (
+                        <div className="landing-recentRow" key={name + i}>
+                          <span className="landing-recentRow__who">{name}</span>
+                          <span className="landing-recentRow__what">{item}</span>
+                          <span
+                            className={`landing-status landing-status--${
+                              status === "Paid" ? "accent" : status === "Packed" ? "good" : "muted"
+                            }`}
+                          >
+                            {status}
+                          </span>
+                        </div>
                       ))}
                     </div>
                   </section>
                 </div>
-              </main>
+
+                <div className="landing-mockup__floating" aria-hidden="true">
+                  <motion.div
+                    className="landing-floatCard"
+                    animate={{ y: [0, -10, 0] }}
+                    transition={{ duration: 3.6, repeat: Infinity, ease: "easeInOut" }}
+                  >
+                    <span className="landing-floatCard__k">Inventory health</span>
+                    <strong className="landing-floatCard__v">A+</strong>
+                  </motion.div>
+
+                  <motion.div
+                    className="landing-floatCard landing-floatCard--secondary"
+                    animate={{ y: [0, -8, 0] }}
+                    transition={{
+                      duration: 4.2,
+                      repeat: Infinity,
+                      ease: "easeInOut",
+                      delay: 0.2
+                    }}
+                  >
+                    <span className="landing-floatCard__k">Avg. response</span>
+                    <strong className="landing-floatCard__v">11m</strong>
+                  </motion.div>
+                </div>
+              </div>
             </div>
           </motion.div>
         </section>
