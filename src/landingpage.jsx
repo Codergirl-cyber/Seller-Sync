@@ -17,19 +17,19 @@ const container = {
 };
 
 const fadeUp = {
-  hidden: { opacity: 0, y: 18 },
+  hidden: { opacity: 0, y: 20 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.72, ease } }
 };
 
-const preview = {
-  hidden: { opacity: 0, y: 28, scale: 0.985 },
-  visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.9, ease, delay: 0.2 } }
+const floatIn = {
+  hidden: { opacity: 0, y: 18 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.9, ease, delay: 0.18 } }
 };
 
 const metrics = [
-  { label: "Revenue today", value: "$8,420", change: "+12.4%" },
-  { label: "Orders open", value: "136", change: "24 ready" },
-  { label: "Stock synced", value: "742", change: "Live" }
+  { label: "Revenue", value: "$138.4k", hint: "+12.7% this week" },
+  { label: "Orders", value: "278", hint: "18 pending" },
+  { label: "Inventory", value: "5,240", hint: "Auto-sync" }
 ];
 
 const orders = [
@@ -61,7 +61,7 @@ const LandingPage = () => {
 
   return (
     <div className="landing-page">
-      <div className="landing-background" aria-hidden="true">
+      <div className="landing-page__background" aria-hidden="true">
         <span />
         <span />
         <span />
@@ -91,36 +91,32 @@ const LandingPage = () => {
           </Button>
           <a href="#features">Features</a>
           <a href="#preview">Preview</a>
-          <>
-            <Link to="/login"><Button size="sm" variant="ghost">Log in</Button></Link>
-            <Link to="/signup"><Button size="sm">Sign up</Button></Link>
-          </>
+          <Link to="/login"><Button size="sm" variant="ghost">Log in</Button></Link>
+          <Link to="/signup"><Button size="sm">Sign up</Button></Link>
         </div>
       </motion.nav>
 
-      <main>
+      <main className="landing-main">
         <section className="landing-hero">
-          <div className="landing-hero__glow" />
-
           <motion.div
-            className="landing-hero__content"
+            className="landing-copy"
             variants={container}
             initial="hidden"
             animate="visible"
           >
-            <motion.p className="landing-hero__eyebrow" variants={fadeUp}>
+            <motion.p className="landing-eyebrow" variants={fadeUp}>
               Commerce operations for Instagram sellers
             </motion.p>
 
-            <motion.h1 className="landing-hero__headline" variants={fadeUp}>
+            <motion.h1 className="landing-headline" variants={fadeUp}>
               Sell beautifully. Operate without chaos.
             </motion.h1>
 
-            <motion.p className="landing-hero__subtext" variants={fadeUp}>
+            <motion.p className="landing-description" variants={fadeUp}>
               SellerSync brings orders, inventory, fulfillment, and revenue into one focused workspace built for sellers who move fast.
             </motion.p>
 
-            <motion.div className="landing-hero__actions" variants={fadeUp}>
+            <motion.div className="landing-actions" variants={fadeUp}>
               <Link to="/login" className="landing-hero__primary-link">
                 <motion.span
                   whileHover={{ backgroundColor: "var(--accent-hover)", y: -1 }}
@@ -156,7 +152,7 @@ const LandingPage = () => {
           <motion.div
             id="preview"
             className="landing-preview"
-            variants={preview}
+            variants={floatIn}
             initial="hidden"
             animate="visible"
           >
@@ -183,11 +179,11 @@ const LandingPage = () => {
                 </div>
 
                 <div className="landing-product__metrics">
-                  {metrics.map(({ label, value, change }) => (
+                  {metrics.map(({ label, value, hint }) => (
                     <div className="landing-product__metric" key={label}>
                       <span>{label}</span>
                       <strong>{value}</strong>
-                      <small>{change}</small>
+                      <small>{hint}</small>
                     </div>
                   ))}
                 </div>
