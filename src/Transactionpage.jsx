@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { supabase } from "./supabase";
 import { useAuth } from "./hooks/useAuth";
 import { Skeleton } from "./components/UI";
@@ -14,7 +14,9 @@ export default function TransactionsPage() {
     const [statusFilter, setStatusFilter] = useState("all"); // all, success, failed, pending
     const [updating, setUpdating] = useState(null); // Track which transaction is being updated
 
-    const fetchTransactions = async () => {
+    const fetchTransactions = useCallback(async () => {
+        await Promise.resolve();
+
         if (!user) {
             setTransactions([]);
             setLoading(false);
@@ -38,12 +40,15 @@ export default function TransactionsPage() {
         } finally {
             setLoading(false);
         }
-    };
+    }, [user, showToast]);
 
     useEffect(() => {
         if (!user) return;
-        fetchTransactions();
-    }, [user]);
+        const timer = window.setTimeout(() => {
+            fetchTransactions();
+        }, 0);
+        return () => window.clearTimeout(timer);
+    }, [user, fetchTransactions]);
 
     const updateTransactionStatus = async (txnId, newStatus) => {
         try {

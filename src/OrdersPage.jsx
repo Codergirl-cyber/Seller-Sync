@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { supabase } from "./supabase";
 import { useAuth } from "./hooks/useAuth";
 import { Skeleton, Button, Input } from "./components/UI";
@@ -30,7 +30,9 @@ export default function OrdersPage() {
         order_date: new Date().toISOString().split("T")[0]
     });
 
-    const fetchOrders = async () => {
+    const fetchOrders = useCallback(async () => {
+        await Promise.resolve();
+
         if (!user) {
             setOrders([]);
             setLoading(false);
@@ -54,10 +56,15 @@ export default function OrdersPage() {
         } finally {
             setLoading(false);
         }
-    };
+    }, [user]);
 
-    const fetchProducts = async () => {
-        if (!user) return;
+    const fetchProducts = useCallback(async () => {
+        await Promise.resolve();
+
+        if (!user) {
+            setProducts([]);
+            return;
+        }
 
         const { data, error } = await supabase
             .from("products")
@@ -71,13 +78,16 @@ export default function OrdersPage() {
         }
 
         setProducts(data || []);
-    };
+    }, [user]);
 
     useEffect(() => {
         if (!user) return;
-        fetchOrders();
-        fetchProducts();
-    }, [user]);
+        const timer = window.setTimeout(() => {
+            fetchOrders();
+            fetchProducts();
+        }, 0);
+        return () => window.clearTimeout(timer);
+    }, [user, fetchOrders, fetchProducts]);
 
     const createOrder = async (e) => {
         e.preventDefault();

@@ -48,6 +48,8 @@ export default function CustomersPage() {
 
   useEffect(() => {
     const load = async () => {
+      await Promise.resolve();
+
       try {
         setLoading(true);
         if (!user) {
@@ -73,7 +75,7 @@ export default function CustomersPage() {
       }
     };
     load();
-  }, [user]);
+  }, [user, showToast]);
 
   const customers = useMemo(() => aggregateCustomers(orders), [orders]);
 

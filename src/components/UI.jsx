@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 
@@ -149,31 +150,39 @@ export const CountUp = ({ end, duration = 1, prefix = "", suffix = "", delay = 0
   const [count, setCount] = useState(0);
 
   useEffect(() => {
-    if (!end || end === 0) {
-      setCount(0);
-      return;
-    }
+    let timeoutId;
+    let intervalId;
 
-    const startDelay = setTimeout(() => {
-      let current = 0;
-      const frameCount = duration * 60; // 60fps
-      const increment = end / frameCount;
+    const runCount = async () => {
+      await Promise.resolve();
 
-      const interval = setInterval(() => {
-        current += increment;
-        if (current >= end) {
-          setCount(Math.floor(end));
-          clearInterval(interval);
-        } else {
-          setCount(Math.floor(current));
-        }
-      }, 1000 / 60); // ~16.67ms per frame
+      if (!end || end === 0) {
+        setCount(0);
+        return;
+      }
 
-      return () => clearInterval(interval);
-    }, delay * 1000);
+      timeoutId = window.setTimeout(() => {
+        let current = 0;
+        const frameCount = duration * 60; // 60fps
+        const increment = end / frameCount;
+
+        intervalId = window.setInterval(() => {
+          current += increment;
+          if (current >= end) {
+            setCount(Math.floor(end));
+            window.clearInterval(intervalId);
+          } else {
+            setCount(Math.floor(current));
+          }
+        }, 1000 / 60);
+      }, delay * 1000);
+    };
+
+    runCount();
 
     return () => {
-      clearTimeout(startDelay);
+      window.clearTimeout(timeoutId);
+      window.clearInterval(intervalId);
     };
   }, [end, duration, delay]);
 

@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import { createContext, useState, useEffect, useCallback, useRef } from 'react';
 import { supabase, isSupabaseConfigured, getAuthRedirectUrl } from '../supabase';
 
@@ -41,13 +42,12 @@ function formatAuthError(error) {
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [session, setSession] = useState(null);
-  const [initializing, setInitializing] = useState(true);
+  const [initializing, setInitializing] = useState(!supabase);
   const [error, setError] = useState(null);
   const initDone = useRef(false);
 
   useEffect(() => {
     if (!supabase) {
-      setInitializing(false);
       return;
     }
 

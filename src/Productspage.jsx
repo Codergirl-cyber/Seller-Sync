@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { supabase } from "./supabase";
 import { useAuth } from "./hooks/useAuth";
 import { Button, Badge, Skeleton, Input, springConfig } from "./components/UI";
@@ -19,7 +19,9 @@ export default function ProductsPage() {
     const [formProduct, setFormProduct] = useState(emptyProduct);
     const [saving, setSaving] = useState(false);
 
-    const fetchProducts = async () => {
+    const fetchProducts = useCallback(async () => {
+        await Promise.resolve();
+
         if (!user) {
             setProducts([]);
             setLoading(false);
@@ -44,12 +46,15 @@ export default function ProductsPage() {
         } finally {
             setLoading(false);
         }
-    };
+    }, [user, showToast]);
 
     useEffect(() => {
         if (!user) return;
-        fetchProducts();
-    }, [user]);
+        const timer = window.setTimeout(() => {
+            fetchProducts();
+        }, 0);
+        return () => window.clearTimeout(timer);
+    }, [user, fetchProducts]);
 
     const openCreate = () => {
         setEditingId(null);
