@@ -68,16 +68,7 @@ export default function App() {
 
   return (
     <Routes>
-      <Route
-        path="/"
-        element={
-          isAuthenticated ? (
-            <Navigate to="/dashboard" replace />
-          ) : (
-            <LandingPage />
-          )
-        }
-      />
+      <Route path="/" element={<LandingPage />} />
       <Route
         path="/login"
         element={
@@ -116,7 +107,7 @@ export default function App() {
         <Route path="/transactions" element={<TransactionPage />} />
         <Route path="/settings" element={<SettingsPage />} />
       </Route>
-      <Route path="*" element={<Navigate to={isAuthenticated ? "/dashboard" : "/"} replace />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 }
